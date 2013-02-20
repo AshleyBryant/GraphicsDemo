@@ -29,7 +29,7 @@
     // Create the defaults once
     var pluginName = "graphicsdemo",
         defaults = {
-            version: "0.9.6",
+            version: "0.9.7",
             screen: 0,
             graininess: 1,
             blocky: false,
