@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:fb="http://www.facebook.com/2008/fbml" xmlns:og="http://opengraphprotocol.org/schema/">
+<head>
+	<title>Canvas demo</title>
+	
+	<style>
+		html, body { width:100%; height:100%; margin:0; padding:0; }
+		body { background-color:#000; color:#fff; }
+
+		.container { width:400px; margin:50px auto; }
+	</style>
+	
+	<script type="text/javascript" src="jquery-1.8.3.min.js"></script>
+	<script type="text/javascript" src="graphicsdemo-0.9.7.js"></script>
+	<script type="text/javascript">
+		// On document load
+		$(document).ready(function () {
+			// Create shorter names so we don't have to type out the full namespace each time
+			var Step = GraphicsDemo.Step, ColourMap = GraphicsDemo.ColourMap;
+
+			// Create a set of animation steps.  If you include a Step.goTo then it will animate, otherwise not.
+			// The commented out lines are some examples
+			// You can replace the clouds in "ColourMap.clouds" with "blackAndWhite", "red", "green", "blue", "marble1", "marble2", "marble3", "marble4", "fire"
+			// or just use null for the colourMapFunction
+			var animationSteps = [
+				{ step:Step.generateTexture, params:{ screen:0, graininess: 0, wrapTexture: true, colourMapFunction: ColourMap.clouds }},
+				//{ step:Step.scrollBy, params:{ screen:0, xAmount: 1, yAmount: 3}},
+				//{ step:Step.average, params:{ screen:0 }},
+				{ step:Step.renderScreen, params:{ screen:0 }},
+				//{ step:Step.goTo, params:{ step:1 }}
+			];
+			
+			// Call the plugin and pass in the required animation steps
+			var plugin = $("#canvas1").graphicsdemo({ steps: animationSteps }); 
+		  
+		    // Write out the time taken to generate the texture
+			$("#time").text("Time taken : " + plugin.timeTaken + "ms");
+			
+			// Hook up regenerate
+			$("#regenerate").click(function(){
+				plugin.regenerate();
+				$("#time").text("Time taken : " + plugin.timeTaken + "ms");
+			});
+		});
+	</script>
+</head>
+<body>
+	<canvas id="canvas1" width="400" height="400"></canvas>
+	<input type="button" value="Regenerate" id="regenerate" />
+	<p id="time"></p>
+</body>
+</html>
