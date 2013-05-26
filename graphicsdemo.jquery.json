@@ -1,6 +1,6 @@
 {
 	"name": "graphicsdemo",
-	"version": "0.9.7",
+	"version": "0.9.8",
 	"title": "Graphics Demo",
 	"author": { 
 		"name":"Ashley Bryant",
@@ -15,5 +15,5 @@
 	"description": "Provides the ability to generate random textures which can then be used as the basis for natural textures such as clouds, marble, fire, etc for rendering to the canvas.  Also provides screen objects that can manipulate the pixels on the canvas directly.  Screens can have colour maps applied, can be combined or scrolled to create animations.  Can also be extended to provide your own colour maps, masks or custom functionality.",
 	"keywords": ["Graphics", "Demo", "64kdemo", "pixel", "animation", "clouds", "texture", "marble", "fire", "mask", "filter", "canvas", "scroll"],
 	"homepage": "http://www.perihelion.net.nz/texturise/clouds.html",
-	"docs": "http://www.perihelion.net.nz/texturise/clouds.html"
+	"docs": "http://www.perihelion.net.nz/texturise/documentation.html"
 }

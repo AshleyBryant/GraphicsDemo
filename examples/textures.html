@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:fb="http://www.facebook.com/2008/fbml" xmlns:og="http://opengraphprotocol.org/schema/">
+<head>
+	<title>Canvas demo</title>
+	
+	<style>
+		html, body { width:100%; height:100%; margin:0; padding:0; }
+
+		body { background-color:#333; color:#fff; overflow:hidden; font-family: Helvetica, Arial; }
+		
+		.clear { clear:both; }
+		
+		#cube-container { width:600px; margin:100px auto; }
+		
+		a, a:visited { color:#fff; text-decoration:none; }
+		a:hover { text-decoration:underline; }
+
+		#intro { position:absolute; right:100px; top:50px; width:400px; height:100%; background-color:rgba(0, 0, 0, 0.05); border-radius:6px; }
+		#introInner { padding:50px; margin:2px; background-color:rgba(0, 0, 0, 0.05); height:100%; border-radius:6px; }
+		#intro h3 { margin:0; font-size:36px; }
+		#intro small { opacity:0.6; }
+		#intro ul { list-style:none; margin:20px 0 0 0; padding:0; }
+		#intro ul { line-height:50px; }
+		#intro ul div.thumb { float:left; width:50px; height:50px; border:solid 2px #000; border-radius:4px; margin:0 10px 10px 0; }
+		#intro ul div#thumb1 { background-image:url(thumbs.png); }
+		#intro ul div#thumb2 { background-image:url(thumbs.png); background-position:-50px 0; }
+		#intro ul div#thumb3 { background-image:url(thumbs.png); background-position:-100px 0; }
+		#intro ul div#thumb4 { background-image:url(thumbs.png); background-position:-150px 0; }
+		#intro ul div#thumb5 { background-image:url(thumbs.png); background-position:-200px 0; }
+		#intro ul div#thumb6 { background-image:url(thumbs.png); background-position:-250px 0; }
+		#intro ul div#thumb7 { background-image:url(thumbs.png); background-position:-300px 0; }
+	</style>
+	
+	<style>
+		@-moz-keyframes spinningH {
+			from { -moz-transform: rotateX(0deg) rotateY(0deg); }
+			to{ -moz-transform: rotateX(360deg) rotateY(360deg); }
+		}
+
+		@-webkit-keyframes spinningH {
+			from { -webkit-transform: rotateX(0deg) rotateY(0deg); }
+			to { -webkit-transform: rotateX(360deg) rotateY(360deg); }
+		}
+
+		@-o-keyframes spinningH {
+			from { -o-transform: rotateX(0deg) rotateY(0deg); }
+			to { -o-transform: rotateX(360deg) rotateY(360deg); }
+		}
+
+		@-ms-keyframes spinningH {
+			from { -ms-transform: rotateX(0deg) rotateY(0deg); }
+			to { -ms-transform: rotateX(360deg) rotateY(360deg); }
+		}
+
+		@keyframes spinningH {
+			from { transform: rotateX(0deg) rotateY(0deg); }
+			to { transform: rotateX(360deg) rotateY(360deg); }
+		}
+
+ #cube-container {
+  -webkit-perspective : 1000px;
+  -moz-perspective    : 1000px;
+  -o-perspective      : 1000px;
+  -ms-perspective     : 1000px;
+  perspective         : 1000px;
+
+  -webkit-perspective-origin  : 50% 50%;
+  -moz-perspective-origin     : 50% 50%;
+  -moz-transform-origin       : 50% 50%;
+  -o-perspective-origin       : 50% 50%;
+  -ms-perspective-origin      : 50% 50%;
+  perspective-origin          : 50% 50%;
+ }
+
+.cube {
+  -webkit-animation : spinningH 6s infinite linear;
+  -moz-animation    : spinningH 6s infinite linear;
+  -o-animation      : spinningH 6s infinite linear;
+  -ms-animation     : spinningH 6s infinite linear;
+  animation         : spinningH 6s infinite linear;
+}
+
+.cube {
+  float:left;
+  margin: 50px;
+  height: 100px;
+  width: 100px;
+
+  -webkit-transition  : -webkit-transform 2s linear;
+  -moz-transition     : -moz-transform 2s linear;
+  -o-transition       : -o-transform 2s linear;
+  -ms-transition      : -ms-transform 2s linear;
+  transition          : transform 2s linear;
+
+  -webkit-transform-style : preserve-3d;
+  -moz-transform-style    : preserve-3d;
+  -o-transform-style      : preserve-3d;
+  -ms-transform-style     : preserve-3d;
+  transform-style         : preserve-3d;
+}
+
+.cube>canvas {
+  position: absolute;
+  height: 100px;
+  width: 100px;
+  opacity: 0.9;
+  background-position:center center;
+}
+
+.cube canvas:nth-child(1) {
+  -webkit-transform : translateZ(50px);
+  -moz-transform    : translateZ(50px);
+  -o-transform      : translateZ(50px);
+  -ms-transform     : translateZ(50px);
+  transform         : translateZ(50px);
+}
+
+.cube canvas:nth-child(2) {
+  -webkit-transform : rotateY(90deg) translateZ(50px);
+  -moz-transform    : rotateY(90deg) translateZ(50px);
+  -o-transform      : rotateY(90deg) translateZ(50px);
+  -ms-transform     : rotateY(90deg) translateZ(50px);
+  transform         : rotateY(90deg) translateZ(50px);
+}
+
+.cube canvas:nth-child(3) {
+  -webkit-transform : rotateY(180deg) translateZ(50px);
+  -moz-transform    : rotateY(180deg) translateZ(50px);
+  -o-transform      : rotateY(180deg) translateZ(50px);
+  -ms-transform     : rotateY(180deg) translateZ(50px);
+  transform         : rotateY(180deg) translateZ(50px);
+}
+
+.cube canvas:nth-child(4) {
+  -webkit-transform : rotateY(-90deg) translateZ(50px);
+  -moz-transform    : rotateY(-90deg) translateZ(50px);
+  -o-transform      : rotateY(-90deg) translateZ(50px);
+  -ms-transform     : rotateY(-90deg) translateZ(50px);
+  transform         : rotateY(-90deg) translateZ(50px);
+}
+
+.cube canvas:nth-child(5) {
+  -webkit-transform : rotateX(-90deg) translateZ(50px) rotate(180deg);
+  -moz-transform    : rotateX(-90deg) translateZ(50px) rotate(180deg);
+  -o-transform      : rotateX(-90deg) translateZ(50px) rotate(180deg);
+  -ms-transform     : rotateX(-90deg) translateZ(50px) rotate(180deg);
+  transform         : rotateX(-90deg) translateZ(50px) rotate(180deg);
+}
+
+.cube canvas:nth-child(6)  {
+  -webkit-transform : rotateX(90deg) translateZ(50px);
+  -moz-transform    : rotateX(90deg) translateZ(50px);
+  -o-transform      : rotateX(90deg) translateZ(50px);
+  -ms-transform     : rotateX(90deg) translateZ(50px);
+  transform         : rotateX(90deg) translateZ(50px);
+  text-align:center;  
+}
+	</style>
+	
+	<script type="text/javascript" src="jquery-1.8.3.min.js"></script>
+	<script type="text/javascript" src="graphicsdemo-0.9-min.js"></script>
+	<script type="text/javascript">
+		// On document load
+		$(document).ready(function () {
+			// Remove namespacing for ease of use
+			var Step = GraphicsDemo.Step, ColourMap = GraphicsDemo.ColourMap, Mask = GraphicsDemo.Mask;
+			
+			// Generate panels on cubes
+			var plugins1 = $("#cube1 canvas").graphicsdemo({ graininess:0, scale: 4 }); 
+			var plugins2 = $("#cube2 canvas").graphicsdemo({ graininess:0, colourMapFunction:ColourMap.clouds }); 
+			var plugins3 = $("#cube3 canvas").graphicsdemo({ graininess:0, colourMapFunction:ColourMap.fire }); 
+			var plugins4 = $("#cube4 canvas").graphicsdemo({ graininess:0, colourMapFunction:ColourMap.marble1 }); 
+			var plugins5 = $("#cube5 canvas").graphicsdemo({ graininess:0, colourMapFunction:ColourMap.marble2 }); 
+			var plugins6 = $("#cube6 canvas").graphicsdemo({ graininess:0, colourMapFunction:ColourMap.marble3 }); 
+			var plugins7 = $("#cube7 canvas").graphicsdemo({ graininess:0, colourMapFunction:ColourMap.marble4 }); 
+		});
+	</script>
+</head>
+<body>
+	<!-- Background clouds -->
+	<div id="cube-container">
+		<div id="cube1" class="cube">
+			<canvas></canvas>
+			<canvas></canvas>
+			<canvas></canvas>
+			<canvas></canvas>
+			<canvas></canvas>
+			<canvas></canvas>
+		</div>
+		<div id="cube2" class="cube">
+			<canvas></canvas>
+			<canvas></canvas>
+			<canvas></canvas>
+			<canvas></canvas>
+			<canvas></canvas>
+			<canvas></canvas>
+		</div>
+		<div id="cube3" class="cube">
+			<canvas></canvas>
+			<canvas></canvas>
+			<canvas></canvas>
+			<canvas></canvas>
+			<canvas></canvas>
+			<canvas></canvas>
+		</div>
+		
+		<div class="clear"></div>
+		
+		<div id="cube4" class="cube">
+			<canvas></canvas>
+			<canvas></canvas>
+			<canvas></canvas>
+			<canvas></canvas>
+			<canvas></canvas>
+			<canvas></canvas>
+		</div>
+		
+		<div id="cube5" class="cube">
+			<canvas></canvas>
+			<canvas></canvas>
+			<canvas></canvas>
+			<canvas></canvas>
+			<canvas></canvas>
+			<canvas></canvas>
+		</div>
+		
+		<div id="cube6" class="cube">
+			<canvas></canvas>
+			<canvas></canvas>
+			<canvas></canvas>
+			<canvas></canvas>
+			<canvas></canvas>
+			<canvas></canvas>
+		</div>
+		
+		<div id="cube7" class="cube">
+			<canvas></canvas>
+			<canvas></canvas>
+			<canvas></canvas>
+			<canvas></canvas>
+			<canvas></canvas>
+			<canvas></canvas>
+		</div>
+	</div>
+	
+	<!-- Content bar-->
+	<div id="intro">
+		<div id="introInner">
+			<h3>Graphics Demo</h3>
+			<small>A jQuery plugin for creating natural textures and animations on the canvas</small>
+			<ul>
+				<li><a href="clouds.html"><div id="thumb1" class="thumb"></div>Clouds</a><div class="clear"></div></li>
+				<li><a href="heat.html"><div id="thumb2" class="thumb"></div>Heat</a><div class="clear"></div></li>
+				<li><a href="ripples.html"><div id="thumb3" class="thumb"></div>Ripples</a><div class="clear"></div></li>
+				<li><a href="growth.html"><div id="thumb4" class="thumb"></div>Growth</a><div class="clear"></div></li>
+				<li><a href="geode.html"><div id="thumb5" class="thumb"></div>Geode</a><div class="clear"></div></li>
+				<li><a href="textures.html"><div id="thumb6" class="thumb"></div>Textures</a><div class="clear"></div></li>
+				<li><a href="documentation.html"><div id="thumb7" class="thumb"></div>Documentation</a><div class="clear"></div></li>
+				<li><a href="http://plugins.jquery.com/graphicsdemo/" target="_blank"><div id="thumb8" class="thumb"></div>Download</a><div class="clear"></div></li>
+			</ul>
+		</div>
+	</div>
+	
+</body>
+</html>

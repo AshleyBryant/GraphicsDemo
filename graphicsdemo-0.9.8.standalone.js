@@ -1,137 +1,26 @@
 /*
  * graphicsdemo (aka 64kdemo)
  * Original author: @ashesid
- * Last updated: 16 Feb 2013
+ * Last updated: 22 Feb 2013
  * Desc: Provides basic routines for creating random textures on a canvas
  *       as well as an underlying graphics object that can be used independantly
  *       for custom graphics and animations.
  */
 
-// the semi-colon before the function invocation is a safety
-// net against concatenated scripts and/or other plugins
-// that are not closed properly.
-
-;(function ( $, window, document, undefined ) {
-
-    // undefined is used here as the undefined global
-    // variable in ECMAScript 3 and is mutable (i.e. it can
-    // be changed by someone else). undefined isn't really
-    // being passed in so we can ensure that its value is
-    // truly undefined. In ES5, undefined can no longer be
-    // modified.
-
-    // window and document are passed through as local
-    // variables rather than as globals, because this (slightly)
-    // quickens the resolution process and can be more
-    // efficiently minified (especially when both are
-    // regularly referenced in your plugin).
-    
-    // Create the defaults once
-    var pluginName = "graphicsdemo",
-        defaults = {
-            version: "0.9.7",
-            screen: 0,
-            graininess: 1,
-            blocky: false,
-            scale: 1,
-            wrapTexture: false,
-            colourMapFunction: null,
-            steps: null,
-            fps:24
-        };
-
-    // The actual plugin constructor
-    function Plugin( element, options ) {
-        this.element = element;
-        // jQuery has an extend method that merges the
-        // contents of two or more objects, storing the
-        // result in the first object. The first object
-        // is generally empty because we don't want to alter
-        // the default options for future instances of the plugin
-        this.options = $.extend( {}, defaults, options) ;
-        this._defaults = defaults;
-        this._name = pluginName;
-
-        var start = new Date();
-
-        this.init();
-
-        var end = new Date();
-        this.timeTaken = end - start;
-    }
-
-    // Initialisation and generate the random texture
-    Plugin.prototype.init = function () {
-        // Create a new graphics object for the canvas and a screen 0
-        this.graphics = new GraphicsDemo.Graphics(this.element);
-
-        // Execute each step passed in (note can handle looping)
-        if (this.options.steps != null){
-            GraphicsDemo.StepsExecution.workingParams[GraphicsDemo.StepsExecution.processCount] = { stepNo: 0, graphics: this.graphics, steps: this.options.steps, defaults: defaults, fps:this.options.fps };
-            GraphicsDemo.StepsExecution.executeSteps(GraphicsDemo.StepsExecution.processCount++);
-        } else {
-            // No steps so we assume we're just rendering a texture
-            this.graphics.createScreen(0);
-            GraphicsDemo.Step.generateTexture(this.graphics, this.graphics.Screen[0], this.options);
-            GraphicsDemo.Step.renderScreen(this.graphics, this.graphics.Screen[0], this.options);
-        }
-    };
-    
-    // A really lightweight plugin wrapper around the constructor,  
-    // preventing against multiple instantiations 
-    $.fn[pluginName] = function ( options ) { 
-        var graphicsObjects = [];
-        
-        this.each(function () { 
-            var graphics = $.data(this, 'plugin_' + pluginName);
-            if (!graphics) { 
-                graphics = new Plugin( this, options );
-                $.data(this, 'plugin_' + pluginName, graphics); 
-            }
-            graphicsObjects.push(graphics);
-        });
-    
-        // If there is only one object then return that, other return an array of graphics objects
-        return graphicsObjects.length == 1 ? graphicsObjects[0] : graphicsObjects;
-    }
-    
-    /*
-     * Internal functions
-     */
-     
-    // Regenerate
-    Plugin.prototype.regenerate = function(options){
-        if (options != null){
-            this.options = $.extend( {}, defaults, options) ;
-            this._defaults = defaults;
-            this._name = pluginName;
-        }
-
-        var start = new Date();
-
-        this.graphics.clear();
-
-        if (this.options.steps != null){
-            // Execute each step passed in (note can handle looping)
-            // TODO: This needs to kill any previously running animations first!
-            GraphicsDemo.StepsExecution.workingParams[GraphicsDemo.StepsExecution.processCount] = { stepNo: 0, graphics: this.graphics, steps: this.options.steps, defaults: defaults, fps:this.options.fps };
-            GraphicsDemo.StepsExecution.executeSteps(GraphicsDemo.StepsExecution.processCount++);
-        } else {
-            // No steps so we assume we're just rendering a texture
-            this.graphics.createScreen(0);
-            GraphicsDemo.Step.generateTexture(this.graphics, this.graphics.Screen[0], this.options);
-            GraphicsDemo.Step.renderScreen(this.graphics, this.graphics.Screen[0], this.options);
-        }
-
-        // Work out time taken in ms
-        var end = new Date();
-        this.timeTaken = end - start;
-    }
-
-})( jQuery, window, document );
-
 // Object namespace
-var GraphicsDemo = {};
+var GraphicsDemo = {
+	defaults : {
+		version: "0.9.7",
+		screen: 0,
+		graininess: 1,
+		blocky: false,
+		scale: 1,
+		wrapTexture: false,
+		colourMapFunction: null,
+		steps: null,
+		fps:24
+    }
+};
 
 /*
  * Steps execution
@@ -146,11 +35,21 @@ GraphicsDemo.StepsExecution = {
         var stepNo = wParams.stepNo;
         while(stepNo < wParams.steps.length){
             var value = wParams.steps[stepNo];
-            var params = $.extend( {}, wParams.defaults, value.params);
-            var screen = wParams.graphics.Screen[params.screen];
+            var params = {};
+			for(var attr in value.params){
+				params[attr] = value.params[attr];
+			}
+			for(var attr in wParams.defaults){
+				if (!params[attr]){
+					params[attr] = wParams.defaults[attr];
+				}
+			}
+			
+			
+            var screen = wParams.graphics.Screens[params.screen];
             if (screen == null){
                 wParams.graphics.createScreen(params.screen);
-                screen = wParams.graphics.Screen[params.screen];
+                screen = wParams.graphics.Screens[params.screen];
             }
             
             if (value.step == GraphicsDemo.Step.goTo){
@@ -168,28 +67,60 @@ GraphicsDemo.StepsExecution = {
 /*
  * Graphics object
  */
-GraphicsDemo.Graphics = function(canvas){
+GraphicsDemo.Graphics = function(canvas, options){
+	this.timeTaken = null;
     this.canvas = canvas;
     this.canvasContext = this.canvas.getContext("2d");
-    
+	this.options = options;
+
     // Array of screens
-    this.Screen = [];
+    this.Screens = [];
     
     // Creates a new screen
     this.createScreen = function(i){
-        this.Screen[i] = new GraphicsDemo.Screen(this.canvasContext.createImageData(this.canvas.width, this.canvas.height));
+        this.Screens[i] = new GraphicsDemo.Screen(this.canvasContext.createImageData(this.canvas.width, this.canvas.height));
     };
     
     // Render screen
     this.renderScreen = function(i){
-        this.canvasContext.putImageData(this.Screen[i].screenData, 0, 0);
+        this.canvasContext.putImageData(this.Screens[i].screenData, 0, 0);
     };
 
     // Clear canvas and remove any screens
     this.clear = function(){
         this.canvasContext.clearRect(0 , 0, this.canvas.width, this.canvas.height);
-        this.Screen = [];
+        this.Screens = [];
+    };
+	
+	// Regenerate
+    this.regenerate = function(options){
+        if (options != null){
+            this.options = options;
+		}
+
+        var start = new Date();
+
+        this.clear();
+
+        if (this.options.steps != null){
+            // Execute each step passed in (note can handle looping)
+            // TODO: This needs to kill any previously running animations first!
+            GraphicsDemo.StepsExecution.workingParams[GraphicsDemo.StepsExecution.processCount] = { stepNo: 0, graphics: this, steps: this.options.steps, defaults: this.defaults, fps:this.options.fps };
+            GraphicsDemo.StepsExecution.executeSteps(GraphicsDemo.StepsExecution.processCount++);
+        } else {
+            // No steps so we assume we're just rendering a texture
+            this.createScreen(0);
+            GraphicsDemo.Step.generateTexture(this, this.Screens[0], this.options);
+            GraphicsDemo.Step.renderScreen(this, this.Screens[0], this.options);
+        }
+
+        // Work out time taken in ms
+        var end = new Date();
+        this.timeTaken = end - start;
     }
+	
+	// execute
+	this.regenerate(options);
 }
 
 /*
@@ -412,6 +343,7 @@ GraphicsDemo.ColourMap = {
         var rDif = (colours[start].r - colours[end].r);
         var gDif = (colours[start].g - colours[end].g);
         var bDif = (colours[start].b - colours[end].b);
+		var aDif = (colours[start].a - colours[end].a);
 
         for(var i = start + 1; i < end; i++){
             var p = (i - start) / dif;
@@ -419,7 +351,7 @@ GraphicsDemo.ColourMap = {
                 r: (colours[start].r - rDif * p) >> 0,
                 g: (colours[start].g - gDif * p) >> 0, 
                 b: (colours[start].b - bDif * p) >> 0, 
-                a: 255 
+                a: (colours[start].a - aDif * p) >> 0 
             };
         }
     }
@@ -548,35 +480,38 @@ GraphicsDemo.Step = {
         var data = screen.screenData.data;
 		var col, c1O, c2O, c3O, c4O, c5O;
         
+		var pixelsPerLine = screen.width << 2;
         for (var y = 0; y < screen.height; y++){
             for(var x = 0; x < screen.width; x++){
+				var index = (x + y * screen.width) << 2;
+				
+				// Should be able to base this on index above, but not sure why I can't
                 c1O = (x + (y == 0 ? screen.height - 1 : y - 1) * screen.width) << 2;
                 c2O = ((x == 0 ? screen.width - 1 : x - 1) + y * screen.width) << 2;
-                c3O = (x + y * screen.width) << 2;
+				//c20 = x == 0 ? index + pixelsPerLine - 4 : index - 4;
+                c3O = index;
                 c4O = ((x == screen.width - 1 ? 0 : x + 1) + y * screen.width) << 2;
+				//c40 = x == screen.width - 1 ? index - pixelsPerLine + 4 : index + 4;
                 c5O = (x + (y == screen.height - 1 ? 0 : y + 1) * screen.width) << 2;
-                
-                col = {
-                    r : (data[c1O] + data[c2O] + data[c3O] + data[c4O] + data[c5O]) / 5,
-                    g : (data[++c1O] + data[++c2O] + data[++c3O] + data[++c4O] + data[++c5O]) / 5,
-                    b : (data[++c1O] + data[++c2O] + data[++c3O] + data[++c4O] + data[++c5O]) / 5,
-                    a : 255
-                };
-                
-                screen.setPixel(x, y, col);
+
+				//screen.setPixel(x, y, col);
+                data[index] = (data[c1O] + data[c2O] + data[c3O] + data[c4O] + data[c5O]) / 5;
+				data[index + 1] = (data[++c1O] + data[++c2O] + data[++c3O] + data[++c4O] + data[++c5O]) / 5;
+				data[index + 2] = (data[++c1O] + data[++c2O] + data[++c3O] + data[++c4O] + data[++c5O]) / 5;
+				data[index + 3] = (data[++c1O] + data[++c2O] + data[++c3O] + data[++c4O] + data[++c5O]) / 5;
             }
         }
     },
     
     // Combine two screens with the option of applying a filter
     combine : function(graphics, screen, options){
-        var source1 = graphics.Screen[options.source1];
-        var source2 = graphics.Screen[options.source2];
-        var dest = graphics.Screen[options.dest];
+        var source1 = graphics.Screens[options.source1];
+        var source2 = graphics.Screens[options.source2];
+        var dest = graphics.Screens[options.dest];
         
         if (dest == null){  // Ensure dest screen exists
-            graphics.createScreen(options.destScreen);
-            dest = graphics.Screen[options.destScreen];
+            graphics.createScreen(options.dest);
+            dest = graphics.Screens[options.dest];
         }
         
         for(var y = 0; y < dest.height; y++){

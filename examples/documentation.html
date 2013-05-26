@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:fb="http://www.facebook.com/2008/fbml" xmlns:og="http://opengraphprotocol.org/schema/">
+<head>
+	<title>Canvas demo</title>
+	
+	<style>
+		html, body { width:100%; height:100%; margin:0; padding:0; }
+
+		body { background-color:#00f; color:#fff; overflow:hidden; font-family: Helvetica, Arial; }
+		
+		.clear { clear:both; }
+
+		#background-canvas { width:100%; height:100%; }
+		
+		a, a:visited { color:#fff; text-decoration:none; }
+		a:hover { text-decoration:underline; }
+		
+		#content { position:absolute; top:0; left:0; width:100%; height:100%; overflow:auto; text-shadow:1px 1px 1px rgba(0, 0, 0, 0.2);  }
+		#content #contentInner { margin:50px 600px 50px 50px; }
+		#content h4 { font-size:28px; margin:0; }
+		#content h5 { font-size:22px; margin:20px 0 10px 0; }
+		#content p { color:#eee; }
+		#content code { font-size:11px; color:#CCF; }
+		
+		#intro { position:absolute; right:100px; top:50px; width:400px; height:100%; background-color:rgba(0, 0, 0, 0.05); border-radius:6px; }
+		#introInner { padding:50px; margin:2px; background-color:rgba(0, 0, 0, 0.05); height:100%; border-radius:6px; }
+		#intro h3 { margin:0; font-size:36px; }
+		#intro small { opacity:0.6; }
+		#intro ul { list-style:none; margin:20px 0 0 0; padding:0; }
+		#intro ul { line-height:50px; }
+		#intro ul div.thumb { float:left; width:50px; height:50px; border:solid 2px #000; border-radius:4px; margin:0 10px 10px 0; }
+		#intro ul div#thumb1 { background-image:url(thumbs.png); }
+		#intro ul div#thumb2 { background-image:url(thumbs.png); background-position:-50px 0; }
+		#intro ul div#thumb3 { background-image:url(thumbs.png); background-position:-100px 0; }
+		#intro ul div#thumb4 { background-image:url(thumbs.png); background-position:-150px 0; }
+		#intro ul div#thumb5 { background-image:url(thumbs.png); background-position:-200px 0; }
+		#intro ul div#thumb6 { background-image:url(thumbs.png); background-position:-250px 0; }
+		#intro ul div#thumb7 { background-image:url(thumbs.png); background-position:-300px 0; }
+	</style>
+	
+	<script type="text/javascript" src="jquery-1.8.3.min.js"></script>
+	<script type="text/javascript" src="graphicsdemo-0.9-min.js"></script>
+	<script type="text/javascript">
+		// On document load
+		$(document).ready(function () {
+		    // Remove namespacing for ease of use
+			var Step = GraphicsDemo.Step, ColourMap = GraphicsDemo.ColourMap, Mask = GraphicsDemo.Mask;
+			
+			// Generate background texture, with a lower frame rate
+			var animationSteps = [
+				{ step:Step.generateTexture, params:{ screen:0, graininess:0, scale:16, wrapTexture:true }},
+				{ step:Step.average, params:{ screen:0 }},
+				{ step:Step.renderScreen, params:{ screen:0 }}
+			];
+	
+			var plugin = $("#background-canvas").graphicsdemo({ steps: animationSteps, fps:12 }); 
+		});
+	</script>
+</head>
+<body>
+	<!-- Background clouds -->
+	<canvas id="background-canvas" width="1400" height="1050"></canvas>
+	
+	<div id="content">
+		<div id="contentInner">
+			<h4>Graphics Demo Documentation</h4>
+			
+			<h5>Basic usage (generating static textures)</h5>
+			<p>
+				Basic usage of the Graphics Demo plugin is to generate a random texture or height map on a canvas.  
+				These textures can then be the basis for many natural textures through the application of a ColourMap and can also be used in animations and "graphics demos". 
+				The plugin should only be called on a canvas object like so...
+			</p>
+			<code>var plugin = $("#canvas1").graphicsdemo({  }); </code>
+			
+			<h5>Params</h5>
+			<p>
+				<strong>graininess</strong>: (0..100)<br />
+				0 or 1 gives a smooth texture, while 20 gives a grainy one.  Default is 1.
+			</p>
+			<p>
+				<strong>scale</strong>: (1..100)<br />
+				1 is the default scale, higher numbers zoom in on the texture giving a smoother more homogenous apperance.
+			</p>
+			<p>
+				<strong>blocky</strong>: (true|false)<br />
+				Default is false for a natural looking texture, set to true and the texture becomes blocky, you can effectively see the blocks where the texture is recursively rendered.
+			</p>
+			<p>
+				<strong>wrapTexture</strong>: (true|false)<br />
+				Default is false.  This is useful if you are going to scroll the texture as the top and bottom match up and the left and right sides match so scrolling becomes seamless.
+			</p>
+			<p>
+				<strong>colourMapFunction</strong>: ColourMap.( blackAndWhite | red| green | blue| clouds| marble1 | marble2 | marble3 | marble4 | fire ) or null<br />
+				Default is null which gives a full colour texture, the names above are mostly self explainatory as to the colours applied to the texture.
+			</p>
+			
+			<h5>Example usage</h5>
+			<code>var plugin = $("#canvas1").graphicsdemo({ graininess:2, scale:2, blocky:true, wrapTexture:true, colourMapFunction:ColourMap.clouds });</code>
+			<p>Notes: You can omit any param to get the default value.  GraphicsDemo breaks the jQuery chainability.  If your selector is a single canvas it returns a single graphics object for ease of use.  If it is multiple canvases then it returns an array of graphics objects.</p>
+			
+			<h5>Advanced usage (animations)</h5>
+			<p>The graphics demo plugin also bundles up a number of objects to help with common "demo" tasks.  For example a graphics object, a screen, masks, colourmaps and more.</p>
+			<code>
+				// 1. Remove namespacing for ease of use<br />
+				var Step = GraphicsDemo.Step, ColourMap = GraphicsDemo.ColourMap, Mask = GraphicsDemo.Mask;<br />
+				<br />
+				
+				// 2. Generate background fire animation, with a lower frame rate<br />
+				var animationSteps = [<br />
+					{ step:Step.generateTexture, params:{ screen:0, graininess:0, wrapTexture:true }},<br />
+					{ step:Step.generateTexture, params:{ screen:1, graininess:0, wrapTexture:true }},<br />
+					{ step:Step.scrollBy, params:{ screen:0, xAmount:1, yAmount:-1 }},<br />
+					{ step:Step.scrollBy, params:{ screen:1, xAmount:-1, yAmount:-2 }},<br />
+					{ step:Step.combine, params:{ source1:0, source2:1, dest:2 }},<br />
+					{ step:Mask.vertical, params: { screen:2, bgCol: {r:0, g:0, b:0, a:255 }, pos:1 }},<br />
+					{ step:Step.applyColourMap, params:{ screen:2, colourMapFunction:ColourMap.fire }},<br />
+					{ step:Step.renderScreen, params:{ screen:2 }},<br />
+					{ step:Step.goTo, params: { step:2 }}<br />
+				];<br />
+				<br />
+		
+				// 3. Call graphicsdemo plugin with animation steps<br />
+				var plugin = $("#canvas1").graphicsdemo({ steps: animationSteps, fps:12 }); <br />
+			</code>
+			<p>Here we...</p>
+			<p>1. Define some local variables to shorten the namespaces for ease of use and readabilty (don't do this if these objects conflict with another library).</p>
+			<p>2. Define our steps for the animation.  This is just an array of objects, each with two attributes "step" and "params", the step to perform and the params it will take.</p>
+			<p>3. Call our plugin with the steps required and an optional fps param which stands for frames per second.  Default is 24, we may want to slow it to reduce CPU load (e.g. if the canvas is large).</p>
+			<p>Our animation steps above are defined as...<br />
+				<ol>
+					<li>Generate a random texture on screen 0</li>
+					<li>Generate a random texture on screen 1</li>
+					<li>Scroll screen 0 by (1, -1)</li>
+					<li>Scroll screen 1 by (-1, -2)</li>
+					<li>Combine screen 0 and 1 and put the result in screen 2</li>
+					<li>Apply a vertical mask to screen 2 (it vertically fades into the colour provided)</li>
+					<li>Apply a ColourMap to screen 2 (in this case make it look like fire)</li>
+					<li>Render screen 2 to the canvas</li>
+					<li>Goto step 2 (the third step above, the steps are zero based) and repeat.  Adding a goto makes it an animation that will repeat forever.</li>
+				</ol>
+				<br />
+				The effect?  Two random textures scrolling past each other and combined so that they are constantly changing (then a fire colouring applied that fades out to black at the top).
+			</p>
+			
+			<h5>Steps</h5>
+			<p>renderScreen, goTo, scrollBy, applyColourMap, average, combine, generateTexture</p>
+			<p>Provide more detail here.</p>
+			
+			<h5>Masks</h5>
+			<p>vertical, horizontal, circular</p>
+			<p>Provide more detail here.</p>
+			
+			<h5>Providing custom steps or masks and accessing the underlying screen to putpixels etc</h5>
+			<p>Provide more detail here.</p>
+			
+			<h5></h5>
+		</div>
+	</div>
+	
+	<!-- Content bar-->
+	<div id="intro">
+		<div id="introInner">
+			<h3>Graphics Demo</h3>
+			<small>A jQuery plugin for creating natural textures and animations on the canvas</small>
+			<ul>
+				<li><a href="clouds.html"><div id="thumb1" class="thumb"></div>Clouds</a><div class="clear"></div></li>
+				<li><a href="heat.html"><div id="thumb2" class="thumb"></div>Heat</a><div class="clear"></div></li>
+				<li><a href="ripples.html"><div id="thumb3" class="thumb"></div>Ripples</a><div class="clear"></div></li>
+				<li><a href="growth.html"><div id="thumb4" class="thumb"></div>Growth</a><div class="clear"></div></li>
+				<li><a href="geode.html"><div id="thumb5" class="thumb"></div>Geode</a><div class="clear"></div></li>
+				<li><a href="textures.html"><div id="thumb6" class="thumb"></div>Textures</a><div class="clear"></div></li>
+				<li><a href="documentation.html"><div id="thumb7" class="thumb"></div>Documentation</a><div class="clear"></div></li>
+				<li><a href="http://plugins.jquery.com/graphicsdemo/" target="_blank"><div id="thumb8" class="thumb"></div>Download</a><div class="clear"></div></li>
+			</ul>
+		</div>
+	</div>
+	
+</body>
+</html>

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:fb="http://www.facebook.com/2008/fbml" xmlns:og="http://opengraphprotocol.org/schema/">
+<head>
+	<title>Canvas demo</title>
+	
+	<style>
+		html, body { width:100%; height:100%; margin:0; padding:0; }
+
+		body { background-color:#000; color:#fff; overflow:hidden; font-family: Helvetica, Arial; }
+		
+		.clear { clear:both; }
+		
+		#background-canvas { width:100%; height:100%; }
+		
+		a, a:visited { color:#fff; text-decoration:none; }
+		a:hover { text-decoration:underline; }
+
+		#intro { position:absolute; right:100px; top:50px; width:400px; height:100%; background-color:rgba(0, 0, 0, 0.05); border-radius:6px; }
+		#introInner { padding:50px; margin:2px; background-color:rgba(0, 0, 0, 0.05); height:100%; border-radius:6px; }
+		#intro h3 { margin:0; font-size:36px; }
+		#intro small { opacity:0.6; }
+		#intro ul { list-style:none; margin:20px 0 0 0; padding:0; }
+		#intro ul { line-height:50px; }
+		#intro ul div.thumb { float:left; width:50px; height:50px; border:solid 2px #000; border-radius:4px; margin:0 10px 10px 0; }
+		#intro ul div#thumb1 { background-image:url(thumbs.png); }
+		#intro ul div#thumb2 { background-image:url(thumbs.png); background-position:-50px 0; }
+		#intro ul div#thumb3 { background-image:url(thumbs.png); background-position:-100px 0; }
+		#intro ul div#thumb4 { background-image:url(thumbs.png); background-position:-150px 0; }
+		#intro ul div#thumb5 { background-image:url(thumbs.png); background-position:-200px 0; }
+		#intro ul div#thumb6 { background-image:url(thumbs.png); background-position:-250px 0; }
+		#intro ul div#thumb7 { background-image:url(thumbs.png); background-position:-300px 0; }
+	</style>
+	
+	<script type="text/javascript" src="jquery-1.8.3.min.js"></script>
+	<script type="text/javascript" src="graphicsdemo-0.9-min.js"></script>
+	<script type="text/javascript">
+		// On document load
+		$(document).ready(function () {
+			// Remove namespacing for ease of use
+			var Step = GraphicsDemo.Step, ColourMap = GraphicsDemo.ColourMap, Mask = GraphicsDemo.Mask;
+			
+			// Generate background ripples animation, with a lower frame rate
+			var animationSteps = [
+				{ step:Step.generateTexture, params:{ screen:0, graininess:5, wrapTexture:true }},
+				{ step:Step.generateTexture, params:{ screen:1, graininess:5, wrapTexture:true }},
+				{ step:Step.scrollBy, params:{ screen:0, xAmount:0, yAmount:-1 }},
+				{ step:Step.scrollBy, params:{ screen:1, xAmount:0, yAmount:1 }},
+				{ step:Step.combine, params:{ source1:0, source2:1, dest:2 }},
+				{ step:Mask.vertical, params: { screen:2, bgCol: {r:0, g:0, b:0, a:255 }, pos:2 }},
+				{ step:Step.renderScreen, params:{ screen:2 }},
+				{ step:Step.goTo, params: { step:2 }}
+			];
+	
+			var plugin = $("#background-canvas").graphicsdemo({ steps: animationSteps, fps:12 }); 
+		});
+	</script>
+</head>
+<body>
+	<!-- Background clouds -->
+	<canvas id="background-canvas" width="128" height="128"></canvas>
+	
+	<!-- Content bar-->
+	<div id="intro">
+		<div id="introInner">
+			<h3>Graphics Demo</h3>
+			<small>A jQuery plugin for creating natural textures and animations on the canvas</small>
+			<ul>
+				<li><a href="clouds.html"><div id="thumb1" class="thumb"></div>Clouds</a><div class="clear"></div></li>
+				<li><a href="heat.html"><div id="thumb2" class="thumb"></div>Heat</a><div class="clear"></div></li>
+				<li><a href="ripples.html"><div id="thumb3" class="thumb"></div>Ripples</a><div class="clear"></div></li>
+				<li><a href="growth.html"><div id="thumb4" class="thumb"></div>Growth</a><div class="clear"></div></li>
+				<li><a href="geode.html"><div id="thumb5" class="thumb"></div>Geode</a><div class="clear"></div></li>
+				<li><a href="textures.html"><div id="thumb6" class="thumb"></div>Textures</a><div class="clear"></div></li>
+				<li><a href="documentation.html"><div id="thumb7" class="thumb"></div>Documentation</a><div class="clear"></div></li>
+				<li><a href="http://plugins.jquery.com/graphicsdemo/" target="_blank"><div id="thumb8" class="thumb"></div>Download</a><div class="clear"></div></li>
+			</ul>
+		</div>
+	</div>
+	
+</body>
+</html>
